@@ -1,7 +1,9 @@
 package com.bigbeng.accounts.controller;
 
 import com.bigbeng.accounts.config.AccountsServiceConfig;
-import com.bigbeng.accounts.model.Properties;
+import com.bigbeng.accounts.model.*;
+import com.bigbeng.accounts.service.client.CardsFeignClient;
+import com.bigbeng.accounts.service.client.LoansFeignClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -11,9 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bigbeng.accounts.model.Accounts;
-import com.bigbeng.accounts.model.Customer;
 import com.bigbeng.accounts.repository.AccountsRepository;
+
+import java.util.List;
 
 /**
  * @author Eazy Bytes
@@ -28,6 +30,12 @@ public class AccountsController {
 
     @Autowired
     private AccountsServiceConfig accountsServiceConfig;
+
+    @Autowired
+    LoansFeignClient loansFeignClient;
+
+    @Autowired
+    CardsFeignClient cardsFeignClient;
 
     @PostMapping("/myAccount")
     public Accounts getAccountDetails(@RequestBody Customer customer) {
@@ -48,6 +56,21 @@ public class AccountsController {
                 accountsServiceConfig.getMailDetails(), accountsServiceConfig.getActiveBranches());
         String jsonStr = ow.writeValueAsString(properties);
         return jsonStr;
+    }
+
+    @PostMapping("/myCustomerDetails")
+    public CustomerDetails myCustomerDetails(@RequestBody Customer customer) {
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
+        List<Loans> loans = loansFeignClient.getLoansDetails(customer);
+        List<Cards> cards = cardsFeignClient.getCardDetails(customer);
+
+        CustomerDetails customerDetails = new CustomerDetails();
+        customerDetails.setAccounts(accounts);
+        customerDetails.setLoans(loans);
+        customerDetails.setCards(cards);
+
+        return customerDetails;
+
     }
 
 }
