@@ -8,6 +8,24 @@ services:
             - "8071:8071"
         networks:
             - bigbank
+    eurekaserver:
+        image: bkodocker/eurekaserver:latest
+        mem_limit: 700m
+        ports:
+            -   "8070:8070"
+        networks:
+            - bigbank
+        depends_on:
+            -   configserver
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 15s
+                max_attempts: 3
+                window: 120s
+        environment:
+            SPRING_PROFILES_ACTIVE: default
+            SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
     accounts:
         image: bkodocker/accounts:latest
         mem_limit: 700m
@@ -16,17 +34,38 @@ services:
         networks:
             - bigbank
         depends_on:
-            -   configserver
+            - configserver
+            - eurekaserver
         deploy:
             restart_policy:
                 condition: on-failure
-                delay: 5s
+                delay: 30s
                 max_attempts: 3
                 window: 120s
         environment:
             SPRING_PROFILES_ACTIVE: default
             SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
-            
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    accounts1:
+        image: bkodocker/accounts:latest
+        mem_limit: 700m
+        ports:
+            - "8081:8080"
+        networks:
+            - bigbank
+        depends_on:
+            - configserver
+            - eurekaserver
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 30s
+                max_attempts: 3
+                window: 120s
+        environment:
+            SPRING_PROFILES_ACTIVE: default
+            SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     loans:
         image: bkodocker/loans:latest
         mem_limit: 700m
@@ -36,15 +75,17 @@ services:
             - bigbank
         depends_on:
             - configserver
+            - eurekaserver
         deploy:
             restart_policy:
                 condition: on-failure
-                delay: 5s
+                delay: 30s
                 max_attempts: 3
                 window: 120s
         environment:
             SPRING_PROFILES_ACTIVE: default
             SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     cards:
         image: bkodocker/cards:latest
         mem_limit: 700m
@@ -54,15 +95,17 @@ services:
             - bigbank
         depends_on:
             - configserver
+            - eurekaserver
         deploy:
             restart_policy:
                 condition: on-failure
-                delay: 5s
+                delay: 30s
                 max_attempts: 3
                 window: 120s
         environment:
             SPRING_PROFILES_ACTIVE: default
             SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
             
 networks:
     bigbank:
