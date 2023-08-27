@@ -1,5 +1,6 @@
 package com.bigbeng.accounts.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import java.sql.Date;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class Loans {
     private int loanNumber;
 

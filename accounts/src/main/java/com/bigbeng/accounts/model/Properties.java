@@ -1,6 +1,7 @@
 package com.bigbeng.accounts.model;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Properties {
     private String msg;
     private String buildVersion;
